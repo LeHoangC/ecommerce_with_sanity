@@ -1,9 +1,12 @@
+'use client'
+
 import React from 'react'
 import { Button } from './ui/button'
 import { Product } from '../../sanity.types'
 import { cn } from '@/lib/utils'
 import QuantityButtons from './QuantityButtons'
 import { FormatPrice } from '@/lib/use-price'
+import useCartStore from '../../store'
 
 interface Props {
     product: Product
@@ -11,8 +14,9 @@ interface Props {
 }
 
 const AddToCartButton = ({ product, className }: Props) => {
+    const { addItem, getItemCount } = useCartStore()
+    const itemCount = getItemCount(product._id)
     const isOutOfStock = product?.stock === 0
-    const itemCount = 0
 
     return (
         <div className="w-full">
@@ -24,7 +28,7 @@ const AddToCartButton = ({ product, className }: Props) => {
                     </div>
                     <div className="flex items-center justify-between border-t pt-1">
                         <span className="text-xs font-semibold">Subtotal</span>
-                        <FormatPrice amount={product?.price ?? 0 * itemCount} />
+                        <FormatPrice amount={(product?.price ?? 0) * itemCount} />
                     </div>
                 </div>
             ) : (
@@ -34,6 +38,7 @@ const AddToCartButton = ({ product, className }: Props) => {
                         'w-full bg-transparent text-darkColor shadow-none border border-darkColor/30 font-semibold tracking-wide hover:text-white hoverEffect',
                         className
                     )}
+                    onClick={() => addItem(product)}
                 >
                     Add to cart
                 </Button>
