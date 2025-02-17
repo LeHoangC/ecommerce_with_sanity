@@ -2,7 +2,7 @@
 import Loading from '@/components/Loading'
 import React, { useEffect, useState } from 'react'
 import useCartStore from '../../../../store'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import Container from '@/components/Container'
 import NoAccessToCart from '@/components/NoAccessToCart'
 import EmptyCart from '@/components/EmptyCart'
@@ -16,13 +16,16 @@ import QuantityButtons from '@/components/QuantityButtons'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import paypalLogo from '@/images/paypalLogo.png'
+import { createCheckoutSession, Metadata } from '@/actions/createCheckoutSession'
 
 const CartPage = () => {
     const [isClient, setIsClient] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const { deleteCartProduct, getTotalPrice, getItemCount, getSubTotalPrice, resetCart, getGroupedItems } =
         useCartStore()
     const { isSignedIn } = useAuth()
+    const { user } = useUser()
 
     useEffect(() => {
         setIsClient(true)
@@ -42,6 +45,28 @@ const CartPage = () => {
     }
 
     if (!isClient) return <Loading />
+
+    const handleCheckout = async () => {
+        setIsLoading(true)
+        try {
+            const metadata: Metadata = {
+                orderNumber: crypto.randomUUID(),
+                customerName: user?.fullName ?? 'Unknown',
+                customerEmail: user?.emailAddresses[0].emailAddress ?? 'Unknown',
+                clerkUserId: user!.id,
+            }
+
+            const checkOutUrl = await createCheckoutSession(cartProducts, metadata)
+
+            if (checkOutUrl) {
+                window.location.href = checkOutUrl
+            }
+        } catch (error) {
+            console.error('Error checking out', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     return (
         <div className="bg-gray-50 pb-52 md:pb-10">
@@ -166,7 +191,10 @@ const CartPage = () => {
                                                     className="text-lg font-bold text-black"
                                                 />
                                             </div>
-                                            <Button className="w-full rounded-full font-semibold tracking-wide">
+                                            <Button
+                                                className="w-full rounded-full font-semibold tracking-wide"
+                                                onClick={handleCheckout}
+                                            >
                                                 Proceed to checkout
                                             </Button>
                                             <Link

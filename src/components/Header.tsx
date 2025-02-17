@@ -29,9 +29,6 @@ const Header = async () => {
                         <SignedIn>
                             <Link href="/orders" className="group relative mt-1">
                                 <ListOrdered className="w-6 h-6 group-hover:text-darkColor hoverEffect" />
-                                <span className="absolute -top-1 -right-1 bg-darkColor text-white h-3.5 w-3.5 rounded-full text-xs font-semibold flex items-center justify-center">
-                                    0
-                                </span>
                             </Link>
                             <UserButton />
                         </SignedIn>

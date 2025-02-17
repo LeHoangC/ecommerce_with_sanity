@@ -2,18 +2,21 @@
 import React, { useEffect, useState } from 'react'
 import HomeTabBar from './HomeTabbar'
 import { client } from '@/sanity/lib/client'
-import { productType } from '@/constants'
+// import { productType } from '@/constants'
 import { Product } from '../../sanity.types'
 import ProductCard from './ProductCard'
 import NoProductAvailable from './NoProductAvailable'
 import { AnimatePresence, motion } from 'motion/react'
 
 const ProductGrid = () => {
-    const [selectedTab, setSelectedTab] = useState(productType[0].value || '')
+    const [selectedTab, setSelectedTab] = useState('all')
     const [products, setProducts] = useState<Product[]>([])
     const [loading, setLoading] = useState(false)
 
-    const query = `*[_type == 'product' && variant == '${selectedTab}'] | order(name asc)`
+    const query =
+        selectedTab === 'all'
+            ? `*[_type == 'product'] | order(name asc)`
+            : `*[_type == 'product' && variant == '${selectedTab}'] | order(name asc)`
     const params = { variant: selectedTab }
 
     useEffect(() => {
