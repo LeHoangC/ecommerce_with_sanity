@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import Loading from '@/components/Loading'
 import React, { useEffect, useState } from 'react'
